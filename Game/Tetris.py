@@ -9,18 +9,31 @@ class Tetris:
         pygame.init()
         self.screen = pygame.display.set_mode(config.resolution)
         self.clock = pygame.time.Clock()
-        self.running = True
+        
+        self.start_new_game()
+
+    def start_new_game(self):
+        # game grid and different figures
         self.grid = [[pygame.Rect(x * config.tile_size, y*config.tile_size, config.tile_size,config.tile_size) for y in range(config.height)] for x in range(config.width)]
         self.figures = [[pygame.Rect(x + config.width // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in config.figures_pos]
         self.figure_rect = pygame.Rect(0, 0, config.tile_size - 2, config.tile_size - 2)
+        
+        # current figure dropping in game
         self.current_figure = deepcopy(choice(self.figures))
+        
+        # figure movement and rotation
         self.figure_dx = 0
         self.rotate = False 
+        
+        # y-axis dropping values 
         self.anim_count = 0
         self.anim_limit = config.anim_limit_relaxed
+        
+        # game-observation-list
         self.game_field = [[0 for _ in range(config.height)] for _ in range(config.width)]
+        
+        self.running = True
         self.score = 0
-
 
     #main loop of the game
     def run(self):
@@ -28,7 +41,7 @@ class Tetris:
             self.events()
             self.update()
             self.draw()
-            pygame.time.delay(50) 
+            pygame.time.delay(10) 
         pygame.quit()
         sys.exit()
     
@@ -37,8 +50,17 @@ class Tetris:
         self.draw()
         self.update()
         self.events()
-        # pygame.time.delay(50)
+        return self.get_observation()
     
+
+    # return game as 2D matrix for AI 
+    def get_observation(self):
+        game = deepcopy(self.game_field)
+        for i in range(4):
+            game[self.current_figure[i].x][self.current_figure[i].y] = 1
+        return game
+
+
     def events(self):
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -59,7 +81,6 @@ class Tetris:
                     self.anim_limit = config.anim_limit_relaxed
 
                     
-
     def update(self):
         # move figure along the x axis
         temp_figure = deepcopy(self.current_figure)
@@ -112,6 +133,7 @@ class Tetris:
         # check game over
         if np.array(self.game_field).T[0].sum() > 0:
             print("Game over")
+            self.start_new_game()
 
 
         self.figure_dx = 0
@@ -119,29 +141,31 @@ class Tetris:
 
 
     def draw(self):
+        # refresh screen
         self.screen.fill(pygame.Color('black'))
 
+        # draw grid
         for x in range(config.width):
             for y in range(config.height):
+                # empty grid
                 pygame.draw.rect(self.screen, (config.tile_size,config.tile_size,config.tile_size), self.grid[x][y], 1)
-
-        for tile in range(4):
-            self.figure_rect.x = self.current_figure[tile].x * config.tile_size
-            self.figure_rect.y = self.current_figure[tile].y * config.tile_size
-            pygame.draw.rect(self.screen, pygame.Color("white"),self.figure_rect)
-        
-        for x in range(config.width):
-            for y in range(config.height):
+                # full tiles
                 if(self.game_field[x][y]==1):
                     self.figure_rect.x, self.figure_rect.y = x*config.tile_size, y*config.tile_size
                     pygame.draw.rect(self.screen, pygame.Color("white"),self.figure_rect)
 
-            
+        # draw current figure
+        for tile in range(4):
+            self.figure_rect.x = self.current_figure[tile].x * config.tile_size
+            self.figure_rect.y = self.current_figure[tile].y * config.tile_size
+            pygame.draw.rect(self.screen, pygame.Color("white"),self.figure_rect)
+
         pygame.display.update()
 
 
     @staticmethod
     def check_borders(figure, game_field):
+        # check game borders for legal moves
         if figure.x < 0 or figure.x>(config.width-1):
             return False
         elif figure.y > (config.height-1) or figure.y < (0) or game_field[figure.x][figure.y]:
