@@ -10,6 +10,6 @@ figures_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)], # the different figures of te
                [(0, 0), (0, -1), (0, 1), (1, -1)],
                [(0, 0), (0, -1), (0, 1), (-1, 0)]]
 
-anim_speed, anim_limit_relaxed, anim_limit_pressed = 100, 2000, 100  #figure fall speed
+anim_speed, anim_limit_relaxed, anim_limit_pressed = 100, 101, 50  #figure fall speed
 
 
