@@ -136,7 +136,7 @@ class DQNAgent:
         else:
             if(highest_level>self.current_highest_level):
                 self.current_highest_level = highest_level # negative reward for every high level
-                reward = -highest_level
+                reward = 0 # -highest_level  # <------------------------------------------------------------------------ CHANGE from 0
             else:
                 if(impact_point_level!=-1):
                     reward =  highest_level - impact_point_level
@@ -182,7 +182,7 @@ class DQNAgent:
             print('score for this episode is ',self.game.score,'reward for this episode', episode_reward)
             print()
         
-        self.model.save('Solvers/models/DQN.h5')
+        self.model.save('Solver/models/DQN.h5')
         self.final_sol()
     
     def final_sol(self):

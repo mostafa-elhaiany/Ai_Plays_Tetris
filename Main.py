@@ -3,7 +3,7 @@ from Solver.DQNAgent import DQNAgent
 
 tetris = Tetris(auto_restart_on_lose = False)
 DQN = DQNAgent(tetris)
-# tetris.run()
+tetris.run()
 
-DQN.solve(1000)
+# DQN.solve(100000)
 
